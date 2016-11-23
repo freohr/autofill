@@ -1,3 +1,12 @@
+TBD -
+-Intergration with AutoTrash
+
+2.0.0 - Pimp my Autofill
+-autofill disabled until after automation research. This is mainly for better button placement.
+-Major re-write
+-GUI for easily creating sets
+-not compatible with older version
+
 1.4.5 - Updates
 -updated to new bobs mods names
 -added Dytech, Outposts
