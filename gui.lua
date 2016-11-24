@@ -1,4 +1,5 @@
 --luacheck: globals autofill
+Gui = Gui or require("stdlib.gui.gui")
 local gui = {
   names = {
     main_button = "autofill-main-button",
@@ -7,12 +8,10 @@ local gui = {
 
 }
 
-function gui.on_gui_click(event)
-  if event.element.name == gui.names.main_button then
-    autofill.toggle_paused(event.player_index)
-  end
+local function af_main_button_click(event)
+  autofill.toggle_paused(event.player_index)
 end
-script.on_event(defines.events.on_gui_click, function(event) gui.on_gui_click(event) end)
+Gui.on_click("autofill%-main%-button", af_main_button_click)
 
 function gui.toggle_paused(player, enabled)
   if player.gui.top[gui.names.main_button] then
@@ -29,8 +28,8 @@ function gui.init(player, after_research)
   and player.force.technologies["automation"].researched or after_research == "automation"
   then
     local pdata = global.player_data[player.index]
-    pdata.pause_with_autotrash = pdata.pause_with_autotrash or true
-    pdata.enabled = pdata.enabled or true
+    pdata.pause_with_autotrash = pdata.pause_with_autotrash or false
+    pdata.enabled = true
 
     local main_button = player.gui.top.add {
       type="button",

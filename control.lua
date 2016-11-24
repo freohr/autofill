@@ -1,167 +1,98 @@
---Config Requires
-local config_data = require("config")
-local Config=require("stdlib.config.config")
-local Logger = require("stdlib.log.logger")
+--Require Config Settings
+_G.AF = require("config")
 
---MOD Setup
+--require Logger and Config libraries
+require("stdlib.log.logger")
+require("stdlib.config.config")
+
+--Set up default MOD global variables. These "globals" are not stored in saves
 MOD = {}
-MOD["name"] = "autofill"
-MOD["n"] = "af"
-MOD["false"] = true
-MOD["config"] = Config.new(config_data)
-MOD["logfile"] = Logger.new(MOD.name, "info", true, {log_ticks = true})
-MOD["Event"]=require("stdlib.event.event")
-MOD["registered"] = false
-MOD["fileheader"] = "   vvvvvvvvvvvvvvvvvvvvvvvv--".. MOD.name .." Logging Started:--vvvvvvvvvvvvvvvvvvvvvvvv"
+MOD.name = "autofill"
+MOD.IF = "af"
+MOD.path = "__"..MOD.name.."__"
+MOD.config = Config.new(_G.AF) --Store in Mod global until we can switch to "global"
+MOD.logfile = Logger.new(MOD.name, "info", true, {log_ticks = true})
 
---Util Requires
-require("stdlib.utils.utils")
+require("stdlib.utils.debug") -- require debug functions (requires Mod.logfile be set)
+require("stdlib.utils.utils")  -- string, table, time, colors
+require("stdlib.event.event") --Event system
+require("stdlib.gui.gui") --Gui system
 
---Script Requires
-local scripts = {
-  autofill=require("autofill")
-}
+--Generate any custom events
+Event.reset_mod = script.generate_event_name()
+Event.build_events = {defines.events.on_built_entity, defines.events.on_robot_built_entity}
+Event.death_events = {defines.events.on_preplayer_mined_item, defines.events.on_robot_pre_mined, defines.events.on_entity_died}
 
 -------------------------------------------------------------------------------
 --[[CONTROL HELPERS]]--Helper functions for the control stage
-local function step_through_scripts(name, event, reset)
-  for _, script in pairs(scripts) do
-    if script[name] then script[name](event, reset) end
-  end
-end
+--luacheck: globals Game
 
-local function new_player_init(player, reset) --add or update player and players force index in global
-  if reset or global.player_data == nil then global.player_data = {} end
-  if reset or global.force_data == nil then global.force_data = {} end
+--Registers players, will overwrite data
 
-  if reset == true or (not global.player_data[player.index] or global.player_data[player.index].name ~= player.name) then
-    global.player_data[player.index] = {
-      opened = nil, --TODO move to events.init?
-      name = player.name, --use for flavor, not all players might have a name...
-      index = player.index
-    }
-    step_through_scripts("new_player_init", player, reset)
-    doDebug("new_player_init: Created player: " .. player.index ..":".. player.name)
-  end
-
-  if not global.force_data[player.force.name] then
-    global.force_data[player.force.name] ={}
-    doDebug("new_player_init: Created force: " .. player.force.name)
-  end
-end
-
-local function all_players_init(reset) --add or update ALL players and player forces
-  for _, player in pairs(game.players) do
-    doDebug("playerInit: Looking for new players")
-    new_player_init(player, reset)
-
-  end
-end
+-- local function register_player_data(player_index)
+--   if player_index and Game.valid_player(player_index) then
+--     global.player_data[player_index] = {}
+--   else
+--     for i, _ in pairs(game.players) do
+--       global.player_data[i] = {}
+--     end
+--   end
+-- end
+--
+-- --Registers forces, will overwrite data
+-- local function register_force_data(force_name)
+--   if force_name and Game.valid_force(force_name) then
+--     global.force_data[force_name] = {}
+--   else
+--     for name, _ in pairs(game.forces) do
+--       global.force_data[name] = {}
+--     end
+--   end
+-- end
 
 -------------------------------------------------------------------------------
---[[INIT FUNCTIONS]]--Commonly used Init functions
+--[[INIT FUNCTIONS]]-- Commonly used Init functions, Should be non-mod specific
+-- as these are handled in in "scripts"
 
-local function on_init(reset)
+function MOD.on_init()
   doDebug("on_init: Started")
+
+  --Set up global table
   global = {}
-  global.config = config_data
+  global.player_data = {}
+  global.force_data = {}
+  global.config = _G.AF
   MOD.config = Config.new(global.config) -- We have global init, move config handler to global config
-  all_players_init(MOD.reset)
-  step_through_scripts("on_init", nil, reset)
-  MOD.reset=false
   doDebug("on_init: Complete")
 end
-script.on_init(on_init)
+Event.register(Event.core_events.init, MOD.on_init)
 --Called ONCE, when mod is installed to a new or existing world. Does not get called on subsequent loads
 
---global wrapper for on_init, used in interface
-MOD.on_init = function(args) on_init(args) end
-
-local function on_configuration_changed(event)
+function MOD.on_configuration_changed(event)
   if event.mod_changes ~= nil then
-    doDebug("on_game_changed: version changes detected")
+    doDebug("on_configuration_changed: version changes detected")
+    --Any MOD has been changed/added/removed, including base game updates.
     local changes = event.mod_changes[MOD.name]
     if changes ~= nil then -- THIS Mod has changed
       doDebug(MOD.name .." Updated from ".. tostring(changes.old_version) .. " to " .. tostring(changes.new_version), true)
-      step_through_scripts("on_configuration_changed", event)
-      --Do Stuff Here if needed
+      --This mod has changed
     end
-    MOD.reset=false
   end
 end
-script.on_configuration_changed(on_configuration_changed)
+Event.register(Event.core_events.configuration_changed, MOD.on_configuration_changed)
 --Called ONCE, each time any mod (including base) is add/removed or version # changes.
 --Called AFTER, on_init when installed into existing game.
 
-local function on_load()
+function MOD.on_load()
   doDebug(" on_load")
   MOD.config = Config.new(global.config) -- We have global init, move config handler to global config
-  step_through_scripts("on_load")
-
 end
-script.on_load(on_load)
+Event.register(Event.core_events.load, MOD.on_load)
 --Called ONCE (in SP?), When loading into an world containing this mod. Does not get called if on_init is run.
 
-local function sp_debug_mod_reset()
-  if MOD.reset then
-    on_init(true)
-    MOD.reset=false
-    doDebug(MOD.name .. " was force reset", true)
-    MOD.Event.remove(defines.events.on_tick, sp_debug_mod_reset)
-  end
-end
-MOD.Event.register(defines.events.on_tick, sp_debug_mod_reset)
---Debugging function, re-inits mod on first tick if MOD.reset
+--Script Requires, The meat and potatatos of autofill
+--luacheck: globals autofill
+autofill=require("autofill")
 
-------------------------------------------------------------------------------------------
---[[PLAYER FUNCTIONS]]--Commonly used player functions
-
-local function on_player_created(event)
-
-  local player = game.players[event.player_index]
-  doDebug("on_player_created: ".. player.index ..":".. player.name)
-  new_player_init(player)
-  step_through_scripts("on_player_created", event, false)
-end
-script.on_event(defines.events.on_player_created, function(event) on_player_created(event) end)
---Called, when a new player is created for the first time.
-
-local function on_player_joined(event)
-
-  local player = game.players[event.player_index]
-  doDebug("on_player_joined: ".. player.index ..":".. player.name)
-  new_player_init(player)
-  step_through_scripts("on_player_created", event, false)
-end
-script.on_event(defines.events.on_player_joined_game, function(event) on_player_joined(event) end)
---Called, when a new player joins the map for the first time?.
-
-local function on_player_respawned(event)
-
-  local player = game.players[event.player_index]
-  doDebug("on_player_respawned: " .. player.index ..":" .. player.name)
-  step_through_scripts("on_player_respawned", event, false)
-end
-script.on_event(defines.events.on_player_respawned, function(event) on_player_respawned(event) end)
---Called MP only, when a player re-spawns after dying
-
-local function on_player_left_game(event)
-
-  local player = game.players[event.player_index]
-  doDebug("on_player_left: " .. player.index ..":".. player.name)
-  step_through_scripts("on_player_left", event, false)
-end
-script.on_event(defines.events.on_player_left_game, function(event) on_player_left_game(event) end)
---Called MP, when a player leaves the map?.
-
-local function on_pre_player_died(event)
-
-  local player = game.players[event.player_index]
-  doDebug("on_pre_player_died:" .. player.index ..":".. player.name)
-  step_through_scripts("on_pre_player_died", event, false)
-
-end
-script.on_event(defines.events.on_pre_player_died, function(event) on_pre_player_died(event) end)
---Called ALWAYS, before player dies, fires before on_entity_died, player is still valid at this point.
-
-remote.add_interface(MOD.n, require("interface"))
+--Add the remote interface.
+remote.add_interface(MOD.IF, require("interface"))

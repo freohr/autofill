@@ -1,14 +1,39 @@
---luacheck: ignore table string Proto
+--luacheck: ignore table string Game Proto
 -- utils.lua by binbinhfr, v1.0.10
 
 local author_name1 = "Nexela"
 local author_name2 = "Nexela"
 
+require("stdlib.game")
+require("stdlib.surface")
+require("stdlib.iterator")
 require("stdlib.table")
 require("stdlib.string")
 require("stdlib.time")
 require("stdlib.utils.colors")
 -------------------------------------------------------------------------------
+
+function Game.valid_player(player)
+  if type(player) == "number" or type(player) == "string" then
+    if game.players[player] and game.players[player].valid then
+      return true
+    end
+  elseif type(player) == "table" then
+    if game.players[player.index] and game.players[player.index].valid then
+      return true
+    end
+  end
+  return false
+end
+
+function Game.valid_force(force)
+  if type(force) == "string" and game.forces[force] and game.forces[force].valid then
+    return true
+  elseif type(force) == "table" and game.forces[force.name] and game.forces[force.name].valid then
+    return true
+  end
+return false
+end
 
 --------------------------------------------------------------------------------------
 function string.PrettyNumber( number )
