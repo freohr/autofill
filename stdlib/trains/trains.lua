@@ -82,8 +82,8 @@ function Trains.find_filtered(criteria)
     -- Ensuure surface is set
     criteria.surface =  criteria.surface or 'nauvis'
 
-    -- Make sure 'diesel-locomotive' is specified by default
-    criteria.name = criteria.name or 'diesel-locomotive'
+    -- Make sure 'locomotive' is specified as the type by default
+    criteria.type = criteria.type or 'locomotive'
 
     -- Get locomotives by filter
     local locomotives = Surface.find_all_entities(criteria)
@@ -159,6 +159,37 @@ function Trains.get_main_locomotive(train)
     then
         return train.locomotives.front_movers and train.locomotives.front_movers[1] or train.locomotives.back_movers[1]
     end
+end
+
+--- Creates an Entity module-compatible entity from a train
+-- @tparam LuaTrain train
+-- @treturn table
+function Trains.to_entity(train)
+  local name = "train-" .. Trains.get_train_id(train)
+  return {
+    name = name,
+    valid = train.valid,
+    equals = function(entity)
+      return name == entity.name
+    end
+  }
+end
+
+--- Set user data on a train
+-- <p>This is a helper method around <a href="Entity.html#set_data">Entity.set_data</a></p>
+-- @tparam LuaTrain train
+-- @tparam mixed data
+-- @return mixed
+function Trains.set_data(train, data)
+  return Entity.set_data(Trains.to_entity(train), data)
+end
+
+--- Get user data on a train
+-- <p>This is a helper method around <a href="Entity.html#get_data">Entity.get_data</a></p>
+-- @tparam LuaTrain train
+-- @return mixed
+function Trains.get_data(train)
+  return Entity.get_data(Trains.to_entity(train))
 end
 
 -- Creates a registry of known trains
