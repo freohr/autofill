@@ -5,7 +5,7 @@ local Logger = require("stdlib.log.logger")
 
 --MOD Setup
 MOD = {}
-MOD["name"] = "AutoFill"
+MOD["name"] = "autofill"
 MOD["n"] = "af"
 MOD["false"] = true
 MOD["config"] = Config.new(config_data)

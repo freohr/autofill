@@ -1,6 +1,6 @@
---luacheck: globals AutoFill
-if not AutoFill then AutoFill = {} end
+--luacheck: globals autofill
+if not autofill then autofill = {} end
 
-AutoFill.LOGLEVEL = 2
+autofill.LOGLEVEL = 2
 
-return AutoFill
+return autofill

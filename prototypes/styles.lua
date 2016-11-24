@@ -30,7 +30,7 @@ data.raw["gui-style"].default["autofill-main-button"] =
       type = "monolith",
       monolith_image =
       {
-        filename = "__AutoFill__/graphics/gui.png",
+        filename = "__autofill__/graphics/gui.png",
         priority = "extra-high-no-scale",
         width = 32,
         height = 32,
@@ -42,7 +42,7 @@ data.raw["gui-style"].default["autofill-main-button"] =
       type = "monolith",
       monolith_image =
       {
-        filename = "__AutoFill__/graphics/gui.png",
+        filename = "__autofill__/graphics/gui.png",
         priority = "extra-high-no-scale",
         width = 32,
         height = 32,
@@ -54,7 +54,7 @@ data.raw["gui-style"].default["autofill-main-button"] =
       type = "monolith",
       monolith_image =
       {
-        filename = "__AutoFill__/graphics/gui.png",
+        filename = "__autofill__/graphics/gui.png",
         width = 32,
         height = 32,
         x = 96
@@ -85,7 +85,7 @@ data.raw["gui-style"].default["autofill-main-button"] =
       type = "monolith",
       monolith_image =
       {
-        filename = "__AutoFill__/graphics/gui.png",
+        filename = "__autofill__/graphics/gui.png",
         priority = "extra-high-no-scale",
         width = 32,
         height = 32,
@@ -97,7 +97,7 @@ data.raw["gui-style"].default["autofill-main-button"] =
       type = "monolith",
       monolith_image =
       {
-        filename = "__AutoFill__/graphics/gui.png",
+        filename = "__autofill__/graphics/gui.png",
         priority = "extra-high-no-scale",
         width = 32,
         height = 32,
@@ -109,7 +109,7 @@ data.raw["gui-style"].default["autofill-main-button"] =
       type = "monolith",
       monolith_image =
       {
-        filename = "__AutoFill__/graphics/gui.png",
+        filename = "__autofill__/graphics/gui.png",
         width = 32,
         height = 32,
         x = 160

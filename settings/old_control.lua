@@ -64,7 +64,7 @@ script.on_event(defines.events.on_player_created, function(event)
   if global.personalsets[username] == nil then
     global.personalsets[username] = { active = true, uselimits=true, usegroups=true }
   end
-  --log("AutoFill: user ".. username .. " Created")
+  --log("autofill: user ".. username .. " Created")
 end)
 
 script.on_event("autofill-entity", function(event)
@@ -356,7 +356,7 @@ function initMod(reset,update)
 	else
 		if update then
 			loader.loadBackup()
-			log("AutoFill: Defaults Updated")
+			log("autofill: Defaults Updated")
 		else
 			loader.updateFuelArrays(global.item_arrays)
 		end
