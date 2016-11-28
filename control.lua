@@ -552,5 +552,9 @@ remote.add_interface(MOD.IF,
           return not toggle
         end
       end
+    end,
+
+    getAllItemArrays = function()
+      return table.deepcopy(global.item_arrays)
     end
   })

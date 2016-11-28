@@ -1,5 +1,10 @@
 1.4.6 - More Damn Turrets!
--Additional Turrets Mod
+-add Additional Turrets Mod
+-Add getAllItemArrays remote.call
+-Add Predictabowl mods
+-Add NPUtils
+-add Military Extended?
+-add Firearms Plus
 
 1.4.5 - Updates
 -updated to new bobs mods names
