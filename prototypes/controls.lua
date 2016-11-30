@@ -1,7 +1,7 @@
 data:extend({
   {
       type = "custom-input",
-      name = "autofill-entity",
+      name = "autofill-hotkey-fill",
       key_sequence = "CONTROL + F",
       consuming = "all"
   },
@@ -15,6 +15,12 @@ data:extend({
     type = "custom-input",
     name = "autofill-toggle-groups",
     key_sequence =  "CONTROL + ALT + F",
+    consuming = "script-only"
+  },
+  {
+    type = "custom-input",
+    name = "autofill-toggle-paused",
+    key_sequence =  "CONTROL + ALT + P",
     consuming = "script-only"
   }
 })

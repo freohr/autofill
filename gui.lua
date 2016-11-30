@@ -9,16 +9,17 @@ local gui = {
 }
 
 local function af_main_button_click(event)
-  autofill.toggle_paused(event.player_index)
+  autofill.toggle_paused({player_index=event.player_index, tick=game.tick})
+
 end
 Gui.on_click("autofill%-main%-button", af_main_button_click)
 
-function gui.toggle_paused(player, enabled)
+function gui.toggle_paused(player, paused)
   if player.gui.top[gui.names.main_button] then
-    if not enabled then
-      player.gui.top[gui.names.main_button].style = gui.names.pause_button
-    else
+    if not paused then
       player.gui.top[gui.names.main_button].style = gui.names.main_button
+    else
+      player.gui.top[gui.names.main_button].style = gui.names.pause_button
     end
   end
 end
@@ -36,7 +37,7 @@ function gui.init(player, after_research)
       name=gui.names.main_button,
       style=gui.names.main_button,
     }
-    if not pdata.enabled then main_button.style = gui.names.pause_button end
+    if pdata.paused then main_button.style = gui.names.pause_button end
   end
 end
 
