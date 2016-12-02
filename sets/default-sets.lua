@@ -24,7 +24,7 @@ local sets = {
   --Vanilla
 
   ["car"]                  = {group = nil, slots = {{type="fuel", category="fuel-high", priority="max"}, {type="ammo", category = "bullet", priority = "qty"}}},
-  ["tank"]                 = {group = nil, slots = {{type="fuel", category="fuel-high", priority="min", slot_count=2},
+  ["tank"]                 = {group = nil, slots = {{type="fuel", category="fuel-high", priority="min"}, {type="fuel", category="fuel-high", priority="min"},
                              {type="ammo", category = "bullet", priority = "qty"}, {type="ammo", category = "cannon-shell", priority = "qty"}}},
   ["diesel-locomotive"]    = {group = "locomotives", slots = {{type="fuel", category="fuel-high", priority="max"}}},
   ["boiler"]               = {group = "burners", slots = {{type="fuel", category="fuel-all", priority="max", limit=5}}},
@@ -35,7 +35,7 @@ local sets = {
   ["gun-turret"]           = {group = "turrets", slots = {{category = "bullet", priority = "qty", limit=10}}},
 }
 
---retrieve mod sets and add to table
+--retrieve default mod sets and add to table
 for name, set_table in pairs(require("sets/default-mod-sets")) do
   sets[name] = set_table
 end

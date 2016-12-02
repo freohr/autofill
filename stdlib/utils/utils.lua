@@ -13,14 +13,20 @@ require("stdlib.time")
 require("stdlib.utils.colors")
 -------------------------------------------------------------------------------
 
-function Game.valid_player(player)
-  if type(player) == "number" or type(player) == "string" then
-    if game.players[player] and game.players[player].valid then
-      return true
+--@return Player Object
+function Game.get_valid_player(player_or_index)
+  if not player_or_index then
+    if game.player then return game.player
+    elseif game.players[1] then
+      return game.players[1]
     end
-  elseif type(player) == "table" then
-    if game.players[player.index] and game.players[player.index].valid then
-      return true
+  elseif type(player_or_index) == "number" or type(player_or_index) == "string" then
+    if game.players[player_or_index] and game.players[player_or_index].valid then
+      return game.players[player_or_index]
+    end
+  elseif type(player_or_index) == "table" then
+    if game.players[player_or_index.index] and game.players[player_or_index.index].valid then
+      return player_or_index
     end
   end
   return false

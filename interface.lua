@@ -4,7 +4,7 @@
 local interface = {}
 
 --Dump the "global" to console and logfile
-function interface.printGlob(name, constant)
+function interface.printGlobal(name, constant)
   if name then
     doDebug(global[name], "debug")
     if constant then doDebug(MOD[name], "debug") end
@@ -51,131 +51,127 @@ function interface.config(key, value, silent)
   end
 end
 
--- interface.toggleUsage = function(username)
---   username = isValidUser(username)
---   if username then
---     if global.personalsets[username] then
---       global.personalsets[username].active = not global.personalsets[username].active
---     else
---       global.personalsets[username] = { active = true }
---     end
---   end
--- end
---
--- interface.setUsage = function(username, toggle)
---   username = isValidUser(username)
---   if username then
---     if global.personalsets[username] then
---       --local oldmode=global.personalsets[username].active
---       global.personalsets[username].active=toggle
---       return not toggle
---     end
---   end
--- end
+interface.togglePlayerPause = function(player, pause)
+  player = Game.get_valid_player(player)
+  if player then
+    if global.player_data[player] then
+      if pause == nil then
+        global.player_data[player].paused = not global.player_data[player].paused
+      else
+        global.player_data[player].paused = pause
+      end
+    end
+  end
+end
 
--- interface.insertset = function(username, entityname, set)--this fuction is for inserting personal sets.
---   username = isValidUser(username)
---   if username and isValidEntity(entityname) and isValidSet(set) then
---     global.personalsets[username][entityname] = set
---   end
--- end
---
--- interface.addToDefaultSets = function(entityname, set)
---   if isValidEntity(entityname) and isValidSet(set) then
---     global.defaultsets[entityname] = set
---   end
--- end
---
--- getDefaultSets = function()
---   local sets = table.deepcopy(global.defaultsets)
---   for entity_name, set in pairs(sets) do
---     for i=1, #set do
---       for name, array in pairs(global.item_arrays) do
---         if global.defaultsets[entity_name][i] == array then
---           set[i] = name
---           break
---         end
---       end
---     end
---   end
---   return sets
--- end
---
--- interface.setDefaultSets = function(sets)
---   for entity_name, set in pairs(sets) do
---     if not isValidSet(set) then
---       return
---     end
---   end
---   global.defaultsets = sets
--- end
---
--- interface.getBackupLog = function()
---   local tbl = loader.getBackupLog()
---   local block = table.concat(tbl, "\n")
---   log(block)
--- end
---
--- interface.getItemArray = function(name)
---   return global.item_arrays[name]
--- end
---
--- interface.setItemArray = function(name, new_array)
---   if global.item_arrays[name] == nil then
---     global.item_arrays[name] = new_array
---   else -- replaces content of table without creating new table to maintain referers
---     local old_array = global.item_arrays[name]
---     local max = #old_array < #new_array and #new_array or #old_array
---     for i=1, max do
---       old_array[i] = new_array[i]
---     end
---   end
--- end
---
--- interface.logGlobal = function(key)
---   key = key or "global"
---   if _G[key] then
---     log( serpent.block(_G[key]) )
---   else
---     globalPrint("Global not found.")
---   end
--- end
---
--- -- interface.resetMod = function()
--- -- initMod(true)
--- -- end
---
--- interface.resetUser = function(setname, username)
---   username = isValidUser(username)
---   if username then
---     if setname == "lite" then
---       global.personalsets[username] = makePersonalLiteSets()
---     else
---       global.personalsets[username] = { active = true }
---     end
---   end
--- end
---
--- interface.toggleUsage = function(username)
---   username = isValidUser(username)
---   if username then
---     if global.personalsets[username] then
---       global.personalsets[username].active = not global.personalsets[username].active
---     else
---       global.personalsets[username] = { active = true }
---     end
---   end
--- end
---
--- interface.setUsage = function(username, toggle)
---   username = isValidUser(username)
---   if username then
---     if global.personalsets[username] then
---       --local oldmode=global.personalsets[username].active
---       global.personalsets[username].active=toggle
---       return not toggle
---     end
---   end
--- end
+  interface.setUsage = function(username, toggle)
+    username = isValidUser(username)
+    if username then
+      if global.personalsets[username] then
+        --local oldmode=global.personalsets[username].active
+        global.personalsets[username].active=toggle
+        return not toggle
+      end
+    end
+  end
 
-return interface
+  --Insert a personal set
+  interface.insertset = function(player, entity_name, set)--this fuction is for inserting personal sets.
+    player = Game.get_valid_player(player)
+    if player then
+      doDebug("Creating personal set for ".. player.name)
+      global.player_data[player.index].sets[entity_name]=set
+    end
+  end
+  --
+  -- interface.addToDefaultSets = function(entityname, set)
+  -- if isValidEntity(entityname) and isValidSet(set) then
+  -- global.defaultsets[entityname] = set
+  -- end
+  -- end
+  --
+  -- getDefaultSets = function()
+  -- local sets = table.deepcopy(global.defaultsets)
+  -- for entity_name, set in pairs(sets) do
+  -- for i=1, #set do
+  -- for name, array in pairs(global.item_arrays) do
+  -- if global.defaultsets[entity_name][i] == array then
+  -- set[i] = name
+  -- break
+  -- end
+  -- end
+  -- end
+  -- end
+  -- return sets
+  -- end
+  --
+  -- interface.setDefaultSets = function(sets)
+  -- for entity_name, set in pairs(sets) do
+  -- if not isValidSet(set) then
+  -- return
+  -- end
+  -- end
+  -- global.defaultsets = sets
+  -- end
+  --
+  -- interface.getBackupLog = function()
+  -- local tbl = loader.getBackupLog()
+  -- local block = table.concat(tbl, "\n")
+  -- log(block)
+  -- end
+  --
+  -- interface.getItemArray = function(name)
+  -- return global.item_arrays[name]
+  -- end
+  --
+  -- interface.setItemArray = function(name, new_array)
+  -- if global.item_arrays[name] == nil then
+  -- global.item_arrays[name] = new_array
+  -- else -- replaces content of table without creating new table to maintain referers
+  -- local old_array = global.item_arrays[name]
+  -- local max = #old_array < #new_array and #new_array or #old_array
+  -- for i=1, max do
+  -- old_array[i] = new_array[i]
+  -- end
+  -- end
+  -- end
+  --
+  --
+  -- -- interface.resetMod = function()
+  -- -- initMod(true)
+  -- -- end
+  --
+  -- interface.resetUser = function(setname, username)
+  -- username = isValidUser(username)
+  -- if username then
+  -- if setname == "lite" then
+  -- global.personalsets[username] = makePersonalLiteSets()
+  -- else
+  -- global.personalsets[username] = { active = true }
+  -- end
+  -- end
+  -- end
+  --
+  -- interface.toggleUsage = function(username)
+  -- username = isValidUser(username)
+  -- if username then
+  -- if global.personalsets[username] then
+  -- global.personalsets[username].active = not global.personalsets[username].active
+  -- else
+  -- global.personalsets[username] = { active = true }
+  -- end
+  -- end
+  -- end
+  --
+  -- interface.setUsage = function(username, toggle)
+  -- username = isValidUser(username)
+  -- if username then
+  -- if global.personalsets[username] then
+  -- --local oldmode=global.personalsets[username].active
+  -- global.personalsets[username].active=toggle
+  -- return not toggle
+  -- end
+  -- end
+  -- end
+
+  return interface
