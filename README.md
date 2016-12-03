@@ -17,6 +17,7 @@ Toggle dividing fuel/ammo amongst groups of items with CTRL-ALT-F
 
 Current Mods with a set enabled by default:
 
+* Additional Turrets
 * Dytech mods
 * Yuoki Industries - All Turrets, Boilers, Ammos
 * Bob's Mods - All Turrets, Tanks including Artillery ammo, Ammos
@@ -61,6 +62,7 @@ reset to default setting
 ####Change Log
 ##Please see the changelog.txt file for more details
 
+* 1.4.7   - Additional Turrets added
 * 1.4.5   - Updates to new Bobmods changes, Dytech and Outposts support
 * 1.4.4   - Factorio Version .14
 * 1.4.3   - Natural Evolution! -Added Biological Bullet from NE-Enemies -minor code fixes
