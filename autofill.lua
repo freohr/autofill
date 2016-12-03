@@ -186,34 +186,34 @@ function autofill.fill_entity(entity, pdata, set)
     -- until(k == 0)
     --end
 
-    if insert_count < game.item_prototypes[item].stack_size * slot.slot_count then
+    if insert_count < game.item_prototypes[item].stack_size * (slot.slot_count or 0) then
       color = defines.colors.yellow
-    elseif insert_count >= game.item_prototypes[item].stack_size * slot.slot_count then
+    elseif insert_count >= game.item_prototypes[item].stack_size * (slot.slot_count or 0) then
       color = defines.colors.green
     end
 
     --Do insertion-------------------------------------------------
 
-    inserted = entity.get_item_count(item)
-    entity.insert({name=item, count=count})
-    inserted = entity.get_item_count(item) - inserted
-    if inserted > 0 then
-      if vehicleinv then
-        removed = vehicleinv.get_item_count(item)
-        vehicleinv.remove({name=item, count=inserted})
-        removed = removed - vehicleinv.get_item_count(item)
-        if inserted > removed then
-          maininv.remove({name=item, count=inserted - removed})
-        end
-      else
-        maininv.remove({name=item, count=inserted})
-      end
-      if removed then
-        flying_text({"autofill.insertion-from-vehicle", inserted, game.item_prototypes[item].localised_name, removed, game.entity_prototypes[player.vehicle.name].localised_name}, color, text_pos(), entity.surface)
-      else
-        flying_text({"autofill.insertion", inserted, game.item_prototypes[item].localised_name }, color, text_pos(), entity.surface)
-      end
-    end
+    -- inserted = entity.get_item_count(item)
+    -- entity.insert({name=item, count=count})
+    -- inserted = entity.get_item_count(item) - inserted
+    -- if inserted > 0 then
+    --   if vehicleinv then
+    --     removed = vehicleinv.get_item_count(item)
+    --     vehicleinv.remove({name=item, count=inserted})
+    --     removed = removed - vehicleinv.get_item_count(item)
+    --     if inserted > removed then
+    --       maininv.remove({name=item, count=inserted - removed})
+    --     end
+    --   else
+    --     maininv.remove({name=item, count=inserted})
+    --   end
+    --   if removed then
+    --     flying_text({"autofill.insertion-from-vehicle", inserted, game.item_prototypes[item].localised_name, removed, game.entity_prototypes[player.vehicle.name].localised_name}, color, text_pos(), entity.surface)
+    --   else
+    --     flying_text({"autofill.insertion", inserted, game.item_prototypes[item].localised_name }, color, text_pos(), entity.surface)
+    --   end
+    -- end
 
     ::break_out::
   end

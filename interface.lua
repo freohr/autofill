@@ -1,6 +1,6 @@
 ------------------------------------------------------------------------------------------
 --[[REMOTE INTERFACES]]-- Command Line and access from other mods is enabled here.
-
+local valid_player = Game.get_valid_player
 local interface = {}
 
 --Dump the "global" to console and logfile
@@ -77,7 +77,8 @@ end
 
   --Insert a personal set
   interface.insertset = function(player, entity_name, set)--this fuction is for inserting personal sets.
-    player = Game.get_valid_player(player)
+    --player = Game.get_valid_player(player)
+    player = valid_player(player)
     if player then
       doDebug("Creating personal set for ".. player.name)
       global.player_data[player.index].sets[entity_name]=set

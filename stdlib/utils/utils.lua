@@ -24,10 +24,8 @@ function Game.get_valid_player(player_or_index)
     if game.players[player_or_index] and game.players[player_or_index].valid then
       return game.players[player_or_index]
     end
-  elseif type(player_or_index) == "table" then
-    if game.players[player_or_index.index] and game.players[player_or_index.index].valid then
+  elseif type(player_or_index) == "table" and player_or_index.valid then
       return player_or_index
-    end
   end
   return false
 end
