@@ -1,6 +1,23 @@
 ------------------------------------------------------------------------------------------
 --[[REMOTE INTERFACES]]-- Command Line and access from other mods is enabled here.
-local valid_player = Game.get_valid_player
+--local valid_player = Game.get_valid_player
+local function valid_player(player_or_index)
+  if not player_or_index then
+    if game.player then return game.player
+    elseif game.players[1] then
+      return game.players[1]
+    end
+  elseif type(player_or_index) == "number" or type(player_or_index) == "string" then
+    if game.players[player_or_index] and game.players[player_or_index].valid then
+      return game.players[player_or_index]
+    end
+  elseif type(player_or_index) == "table" and player_or_index.valid then
+      return player_or_index
+  end
+  return false
+end
+
+
 local interface = {}
 
 --Dump the "global" to console and logfile

@@ -311,9 +311,10 @@ Event.register(defines.events.on_built_entity, autofill.on_built_entity)
 function autofill.hotkey_fill(event)
   local entity = game.players[event.player_index].selected
   local pdata = global.player_data[event.player_index]
-  local set = (pdata.sets[entity.name] or global.default_sets[entity.name])
-  if entity and autofill.enabled(event.player_index) and set then
-    autofill.fill_entity(entity, pdata, set)
+  --local set = (pdata.sets[entity.name] or global.default_sets[entity.name])
+  if entity and autofill.enabled(event.player_index) then
+    local set = (pdata.sets[entity.name] or global.default_sets[entity.name])
+    if set then autofill.fill_entity(entity, pdata, set) end
   end
 end
 script.on_event("autofill-hotkey-fill", autofill.hotkey_fill)
