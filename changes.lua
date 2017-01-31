@@ -12,6 +12,7 @@ new_version :: string: New version of the mod. May be nil if the mod is no longe
 local mod_name = MOD.name or "not-set"
 local migrations = {"2.0.0"}
 local changes = {}
+local Verify = require("lib.verify")
 
 --Mark all migrations as complete during Init.
 function changes.on_init(version)
@@ -38,7 +39,7 @@ end
 
 function changes.on_mod_changed(this_mod_changes)
     global._changes = global._changes or {}
-    local old = this_mod_changes.old_version
+    local old = this_mod_changes.old_version or MOD.version
     local migration_index = 1
     if old then -- Find the last installed version
         for i, ver in ipairs(migrations) do
@@ -53,12 +54,13 @@ function changes.on_mod_changed(this_mod_changes)
         if changes[migrations[i]] then
             changes[migrations[i]](this_mod_changes)
             global._changes[migrations[i]] = this_mod_changes.old_version or 0
-            MOD.log("Migration completed for version ".. migrations[i], 2)
+            MOD.log("Migration completed for version ".. migrations[i], 1)
         end
     end
     changes["mod-change-always-last"]()
 end
-
+-------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
 --[[Always run these before any migrations]]
 changes["map-change-always-first"] = function()
@@ -76,8 +78,10 @@ end
 
 --Major changes made
 changes["2.0.0"] = function ()
+    MOD.log("Nuclear Init")
+    --nuclear option!
+    MOD.on_init()
 end
-
 
 -------------------------------------------------------------------------------
 --[[Always run these at the end ]]--
@@ -86,6 +90,14 @@ changes["mod-change-always-last"] = function()
 end
 
 changes["any-change-always-last"] = function()
+    MOD.log("Verifying the integrity of all sets.")
+    global.global_sets.fill_sets = Verify.fill_sets(global.global_sets.fill_sets, "global")
+    for name, fdata in pairs(global.forces) do
+        fdata.fill_sets = Verify.fill_sets(fdata.fill_sets, "force ".. name)
+    end
+    for i, pdata in pairs(global.players) do
+        pdata.fill_sets = Verify.fill_sets(pdata.fill_sets, "player "..i)
+    end
 end
 
 changes["map-change-always-last"] = function()

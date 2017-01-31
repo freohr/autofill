@@ -4,11 +4,13 @@ require("stdlib/loader")
 --These "globals" are not stored in saves
 MOD = {}
 MOD.name = "autofill"
+MOD.version = "2.0.0"
 MOD.fullname = "AutoFill"
 MOD.interface = "af"
 MOD.path = "__"..MOD.name.."__"
 MOD.config = require("config")
-MOD.logfile = Logger.new("AutoFill", "log", MOD.config.DEBUG or false, {log_ticks = true, file_extension="lua"})
+MOD.logfile = Logger.new(MOD.fullname, "log", MOD.config.DEBUG or false, {log_ticks = true, file_extension="log"})
+MOD.logfile.file_name = MOD.logfile.file_name:gsub("logs/", "", 1)
 
 --Generate any custom events
 Event.reset_mod = script.generate_event_name()
@@ -17,7 +19,7 @@ Event.death_events = {defines.events.on_preplayer_mined_item, defines.events.on_
 
 -------------------------------------------------------------------------------
 function MOD.log(msg, level)
-    level = level or (global and global.config and global.config.LOGLEVEL) or MOD.config.LOGLEVEL or 1
+    level = math.max(level or 0, ((global and global.config and global.config.LOGLEVEL) or MOD.config.LOGLEVEL or 0))
     if (level > 0) then
         if (level >= 1) then
             if type(msg) == "table" then
@@ -54,18 +56,12 @@ function MOD.on_init()
     MOD.log("Init: Starting Install")
     global = {}
     global.config = table.deepcopy(MOD.config)
-    global._changes = changes.on_init(game.active_mods[MOD.name])
+    global._changes = changes.on_init(game.active_mods[MOD.name] or MOD.version)
     autofill.init()
     MOD.log("Init: Install Complete", 2)
 end
 Event.register(Event.core_events.init, MOD.on_init)
 --Called ONCE, when mod is installed to a new or existing world. Does not get called on subsequent loads
-
-function MOD.on_load()
-    autofill.set_metatables()
-end
-Event.register(Event.core_events.load, MOD.on_load)
---Called ONCE (in SP?), When loading into an world containing this mod. Does not get called if on_init is run.
 
 --Add the remote interface.
 remote.add_interface(MOD.interface, require("interface"))

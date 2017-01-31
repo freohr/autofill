@@ -35,9 +35,5 @@ local sets = {
   ["gun-turret"]           = {group = "turrets", slots = {{category = "bullet", priority = "qty", limit=10}}},
 }
 
---retrieve default mod sets and add to table
-for name, set_table in pairs(require("sets/default-mod-sets")) do
-  sets[name] = set_table
-end
 
 return sets
