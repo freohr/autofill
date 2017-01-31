@@ -1,6 +1,9 @@
---luacheck: globals autofill
-if not autofill then autofill = {} end
+--luacheck: globals AF
+AF = {}
 
-autofill.LOGLEVEL = 2
+AF.DEBUG = true
+AF.LOGLEVEL = 2
 
-return autofill
+AF.QUICKSTART = {}
+
+return AF

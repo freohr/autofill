@@ -1,18 +1,10 @@
---luacheck: ignore table string Game Proto
+--luacheck: ignore table string
 -- utils.lua by binbinhfr, v1.0.10
 
 local author_name1 = "Nexela"
 local author_name2 = "Nexela"
 
-require("stdlib.game")
-require("stdlib.surface")
-require("stdlib.iterator")
-require("stdlib.table")
-require("stdlib.string")
-require("stdlib.time")
-require("stdlib.utils.colors")
 -------------------------------------------------------------------------------
-
 --@return Player Object
 function Game.get_valid_player(player_or_index)
   if not player_or_index then
@@ -25,7 +17,7 @@ function Game.get_valid_player(player_or_index)
       return game.players[player_or_index]
     end
   elseif type(player_or_index) == "table" and player_or_index.valid then
-      return player_or_index
+    return player_or_index
   end
   return false
 end
@@ -36,7 +28,7 @@ function Game.valid_force(force)
   elseif type(force) == "table" and game.forces[force.name] and game.forces[force.name].valid then
     return true
   end
-return false
+  return false
 end
 
 --------------------------------------------------------------------------------------
@@ -142,7 +134,7 @@ end
 --------------------------------------------------------------------------------------
 function table.add_list(list, obj)
   -- to avoid duplicates...
-  for i, obj2 in pairs(list) do
+  for _, obj2 in pairs(list) do
     if obj2 == obj then
       return(false)
     end
@@ -247,7 +239,7 @@ function table.val_to_str ( v )
   function table.arraytostring(...)
     local s = ""
 
-    for i, v in ipairs({...}) do
+    for _, v in ipairs({...}) do
       s = s .." " .. tostring(v)
     end
     return s
@@ -258,10 +250,15 @@ function table.val_to_str ( v )
     if type(tbl) ~= "table" then
       if tostring(value) == tostring(tbl) then return value else return nil end
     end
-    for k, v in ipairs(tbl) do
+    for _, v in ipairs(tbl) do
       if v == value then return v end
     end
     return nil
+  end
+
+  function table.add_values(tbl, key, val)
+    tbl[key] = (tbl[key] or 0) + val
+    return tbl
   end
 
   function table.getcount(tbl)

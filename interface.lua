@@ -21,22 +21,22 @@ end
 local interface = {}
 
 --Dump the "global" to console and logfile
-function interface.printGlobal(name, constant)
+function interface.print_global(name, constant)
   if name then
-    doDebug(global[name], "debug")
-    if constant then doDebug(MOD[name], "debug") end
+    MOD.log(global[name], 2)
+    if constant then MOD.log(MOD[name], 2) end
   else
-    doDebug(global, "debug")
-    if constant then doDebug(MOD, "debug") end
+    MOD.log(global, 2)
+    if constant then MOD.log(MOD, 2) end
   end
 end
 
 --Complete reset of the mod. Wipes everything.
 function interface.resetMod()
-  doDebug(MOD.name .. " Reset in progress")
+  MOD.log(MOD.name .. " Reset in progress")
   game.raise_event(defines.event.on_init)
   --MOD.on_init() --TODO: Complete
-  doDebug(MOD.name .. " Reset Complete", true)
+  MOD.log(MOD.name .. " Reset Complete", 2)
 end
 
 --Retrive or Set a config value
