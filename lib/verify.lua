@@ -15,7 +15,6 @@ function Verify.fill_sets(fill_sets)
 end
 
 function Verify.item_sets(item_sets)
-    MOD.log("Verifying item_sets")
     local _valid_items = function (_, k)
         if game.item_prototypes[k] then
             return true

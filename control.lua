@@ -42,7 +42,7 @@ end
 
 --Script Requires, The meat and potatatos of autofill
 --luacheck: globals autofill
-autofill = require("autofill")
+autofill = require("autofill.autofill")
 
 
 -------------------------------------------------------------------------------

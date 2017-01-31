@@ -1,3 +1,4 @@
+--luacheck: globals autofill
 --[[
 ConfigurationChangedData
 Table with the following fields:
@@ -12,7 +13,7 @@ new_version :: string: New version of the mod. May be nil if the mod is no longe
 local mod_name = MOD.name or "not-set"
 local migrations = {"2.0.0"}
 local changes = {}
-local Verify = require("lib.verify")
+
 
 --Mark all migrations as complete during Init.
 function changes.on_init(version)
@@ -78,7 +79,7 @@ end
 
 --Major changes made
 changes["2.0.0"] = function ()
-    MOD.log("Nuclear Init")
+    MOD.log("Autofill upgraded to version 2.0.0, Forcing full reset", 2)
     --nuclear option!
     MOD.on_init()
 end
@@ -90,14 +91,8 @@ changes["mod-change-always-last"] = function()
 end
 
 changes["any-change-always-last"] = function()
-    MOD.log("Verifying the integrity of all sets.")
-    global.global_sets.fill_sets = Verify.fill_sets(global.global_sets.fill_sets, "global")
-    for name, fdata in pairs(global.forces) do
-        fdata.fill_sets = Verify.fill_sets(fdata.fill_sets, "force ".. name)
-    end
-    for i, pdata in pairs(global.players) do
-        pdata.fill_sets = Verify.fill_sets(pdata.fill_sets, "player "..i)
-    end
+    autofill.verify_default_sets()
+    autofill.verify_saved_sets()
 end
 
 changes["map-change-always-last"] = function()
