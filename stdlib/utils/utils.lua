@@ -196,6 +196,23 @@ end
 
 -----------------------------------------------------------------------------------
 --Additional Table Helpers
+function table.raw_merge(tblA, tblB, array_merge)
+    if not tblB then
+        return tblA
+    end
+    if array_merge then
+        for _, v in pairs(tblB) do
+            table.insert(tblA, v)
+        end
+
+    else
+        for k, v in pairs(tblB) do
+            tblA[k] = v
+            rawset(tblA, k, v)
+        end
+    end
+    return tblA
+end
 
 function table.val_to_str ( v )
   if "string" == type( v ) then

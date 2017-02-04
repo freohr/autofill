@@ -91,8 +91,11 @@ changes["mod-change-always-last"] = function()
 end
 
 changes["any-change-always-last"] = function()
-    autofill.verify_default_sets()
-    autofill.verify_saved_sets()
+    --on changes
+    --run through all sets and verify them
+    --run through defaults and verify
+    --if configs set then merge defaults into saved in case of changes
+    autofill.sets.verify_default_sets()
 end
 
 changes["map-change-always-last"] = function()
