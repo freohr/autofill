@@ -80,7 +80,6 @@ end
 --Major changes made
 changes["2.0.0"] = function ()
     MOD.log("Autofill upgraded to version 2.0.0, Forcing full reset", 2)
-    --nuclear option!
     MOD.on_init()
 end
 
@@ -91,11 +90,8 @@ changes["mod-change-always-last"] = function()
 end
 
 changes["any-change-always-last"] = function()
-    --on changes
-    --run through all sets and verify them
-    --run through defaults and verify
-    --if configs set then merge defaults into saved in case of changes
     autofill.sets.verify_default_sets()
+    autofill.sets.update_and_verify_saved_sets()
 end
 
 changes["map-change-always-last"] = function()

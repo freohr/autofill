@@ -54,7 +54,7 @@ local function on_player_created(event)
         game.print(msg)
     end
     global._mess_queue = nil
-    game.write_file(MOD.fullname.."/global.lua", serpent.block(global, {comment=false, sparse=false}))
+    game.write_file(MOD.fullname.."/global.lua", serpent.block(global, {comment=false, sparse=true}))
 end
 Event.register(defines.events.on_player_created, on_player_created)
 

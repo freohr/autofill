@@ -8,10 +8,10 @@ interface.console = require("stdlib/debug/console")
 --Dump the "global" to console and logfile
 function interface.print_global(name)
     if name and type(name) == "string" then
-        MOD.log(global[name], 2)
+        --MOD.log(global[name], 2)
         game.write_file(MOD.fullname.."/global.lua", serpent.block(global[name], {comment=false, sparse=true}))
     else
-        MOD.log(global, 2)
+        --MOD.log(global, 2)
         game.write_file(MOD.fullname.."/global.lua", serpent.block(global, {comment=false, sparse=true}))
     end
 end
@@ -60,52 +60,30 @@ end
 
 function interface.reset_global_sets()
     --autofill.sets.reset_to_default_sets(global.sets)
-    global.sets = autofill.sets.new_global_sets()
+    global.sets = autofill.sets.reset_to_default_sets(global.sets)
 end
 
-function interface.reset_force(force, all)
-    if all then
-        autofill.init_force(nil, true)
-    else
-        if force and type(force) == "table" then force = force.name end
+function interface.reset_force(force)
+    if force then
+        if type(force) == "table" then force = force.name end
         autofill.init_force(force, true)
+    else
+        autofill.init_force(nil, true)
     end
 end
 
-function interface.reset_force_sets(force, all)
-    if type(force) == "table" then
-        force = force.name
-    end
-    if all then
-        for index in pairs(game.players) do
-            autofill.sets.reset_to_default_sets(global.forces[index].sets)
-        end
-    else
-        autofill.sets.reset_to_default_sets(global.forces[force].sets)
-    end
-end
-
-function interface.reset_player(player, all)
-    if all then
-        autofill.init_player(nil, true)
-    else
+function interface.reset_player(player)
+    if player then
         autofill.init_player(player.index, true)
-    end
-end
-
-function interface.reset_player_sets(player, all)
-    if all then
-        for index in pairs(game.players) do
-            autofill.sets.reset_to_default_sets(global.players[index].sets)
-        end
     else
-        autofill.sets.reset_to_default_sets(global.players[player.index].sets)
+        autofill.init_player(nil, true)
     end
 end
 
 function interface.verify_saved_sets()
     autofill.sets.verify_default_sets()
-    autofill.sets.verify_saved_sets()
+    autofill.sets.update_and_verify_saved_sets(true)
+    game.write_file(MOD.fullname.."/global.lua", serpent.block(global, {comment=false, sparse=true}))
 end
 
 -------------------------------------------------------------------------------
@@ -139,7 +117,7 @@ end
 -------------------------------------------------------------------------------
 --[[Insert functions]]
 
-function interface.insert_personal_set()
+function interface.insert_player_set()
 end
 function interface.insert_force_set()
 end
@@ -154,6 +132,7 @@ local function register_cm_interface(disable)
     if remote.interfaces["creative-mode"] and remote.interfaces["creative-mode"]["register_remote_function_to_modding_ui"] then
         MOD.log("Registering with Creative Mode")
         remote.call("creative-mode", "register_remote_function_to_modding_ui", MOD.interface, "print_global")
+        remote.call("creative-mode", "register_remote_function_to_modding_ui", MOD.interface, "reset_mod")
         remote.call("creative-mode", "register_remote_function_to_modding_ui", MOD.interface, "verify_saved_sets")
         remote.call("creative-mode", "register_remote_function_to_modding_ui", MOD.interface, "console")
         if disable then interface.creative_mode_register = nil end
