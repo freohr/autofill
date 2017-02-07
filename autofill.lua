@@ -68,19 +68,19 @@ local function on_player_changed_force(event) --luacheck: ignore on_player_chang
     local player, pdata = get_player_and_data(event.player_index)
     pdata.force = player.force.name
     autofill.init_force(event.force.name)
-    autofill.tables.set_player_metatables(pdata)
+    autofill.sets.mt.set_player_metatables(pdata)
 end
 --Event.register(defines.events.on_player_changed_force, on_player_changed_force)
 
 function autofill.on_load()
     if global.players then
         for index in pairs(global.players) do
-            autofill.sets.set_player_metasets(global.players[index])
+            autofill.sets.mt.set_player_metasets(global.players[index])
         end
     end
     if global.forces then
         for name in pairs(global.forces) do
-            autofill.sets.set_force_metasets(global.forces[name])
+            autofill.sets.mt.set_force_metasets(global.forces[name])
         end
     end
 end

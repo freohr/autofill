@@ -17,12 +17,12 @@ local get_default_sets = function(set_type, scope, ignore_config)
 end
 
 local reset_to_default_sets = function(set_tables)
-    local meta_fill_sets = getmetatable(set_tables.fill_sets)
-    local meta_item_sets = getmetatable(set_tables.item_sets)
-    set_tables.fill_sets = get_default_sets("fill_sets", set_tables.type)
-    set_tables.item_sets = get_default_sets("fill_sets", set_tables.type)
-    setmetatable(set_tables.fill_sets, meta_fill_sets)
-    setmetatable(set_tables.item_sets, meta_item_sets)
+    --local meta_fill_sets = getmetatable(set_tables.fill_sets)
+    --local meta_item_sets = getmetatable(set_tables.item_sets)
+    set_tables.fill_sets = setmetatable(get_default_sets("fill_sets", set_tables.type), getmetatable(set_tables.fill_sets))
+    set_tables.item_sets = setmetatable(get_default_sets("fill_sets", set_tables.type), getmetatable(set_tables.item_sets))
+    --setmetatable(set_tables.fill_sets, meta_fill_sets)
+    --setmetatable(set_tables.item_sets, meta_item_sets)
 end
 
 local _valid_items = function(_, k, cat, set_name)
@@ -49,11 +49,13 @@ sets.default_fill_sets = {
     force = require("default-sets.force-fill-sets"),
     player = require("default-sets.player-fill-sets"),
 }
+
 sets.default_item_sets = {
     global = require("default-sets.global-item-sets"),
     force = require("default-sets.force-item-sets"),
     player = require("default-sets.player-item-sets"),
 }
+
 sets.verify_default_sets = function()
     MOD.log("Verifying all default fill_sets", 1)
     for name, set in pairs(sets.default_fill_sets) do
@@ -66,9 +68,9 @@ sets.verify_default_sets = function()
         end
     end
 end
-sets.verify_saved_sets = function()
-end
+
 sets.get_item_sets_from_prototypes = function ()
+    MOD.log("Retrieving default item sets from prototypes", 1)
     local item_sets = {}
     item_sets["fuel-high"] = {}
     item_sets["fuel-all"] = {}
@@ -99,10 +101,10 @@ end
 
 --Automaticly runs in on_configuration_changed
 sets.verify_saved_sets = function ()
-    local _clean_set = function(v, k, good)
-    end
-    MOD.log("Verifying all saved sets.")
-
+    -- local _clean_set = function(v, k, good)
+    -- end
+    MOD.log("Verifying all saved fill_sets", 1)
+    --Merge all then verify
     if global.config.make_default_fill_sets then
         table.raw_merge(global.sets.fill_sets, sets.default_fill_sets.global)
         for _, force in pairs(global.forces) do
@@ -112,28 +114,42 @@ sets.verify_saved_sets = function ()
             table.raw_merge(player.sets.fill_sets, sets.default_fill_sets.player)
         end
     end
-
-
     for entity_name in pairs(global.sets.fill_sets) do
         if not _valid_entities(nil, entity_name, "global_fill_sets") then
             rawset(global.sets.fill_sets, entity_name, nil)
         end
     end
+    MOD.log("Verrifying all saved item_sets", 1)
+    if global.config.make_default_item_sets then
+        table.raw_merge(global.sets.item_sets, sets.default_item_sets.global)
+        for _, force in pairs(global.forces) do
+            table.raw_merge(force.sets.item_sets, sets.default_item_sets.force)
+            --need to do verify code here
+            -- for list in pairs(force.sets.item_sets) do
+            --     if not _valid_items(nil, list, "force_fill_sets") then
+            --         rawset(force.sets.item_sets.list, )
+        end
+        for _, player in pairs(global.players) do
+            table.raw_merge(player.sets.item_sets, sets.default_item_sets.player)
+            --Verify set here
+        end
+    end
+    if global.config.make_item_sets_from_prototypes then
+        table.raw_merge(global.sets.item_sets, sets.get_item_sets_from_prototypes)
+        --Verify the global item sets?
+    end
 
-
-local global_sets = global.sets
-    -- for name, fdata in pairs(global.forces) do
-    -- fdata.fill_sets = Verify.fill_sets(fdata.fill_sets, "force ".. name)
-    -- end
-    -- for i, pdata in pairs(global.players) do
-    -- pdata.fill_sets = Verify.fill_sets(pdata.fill_sets, "player "..i)
-    -- end
 end
+
+
+--local global_sets = global.sets
+
 
 -------------------------------------------------------------------------------
 --[[Global Sets]]--
 -------------------------------------------------------------------------------
 sets.global = {}
+
 sets.global.new = function()
     sets.verify_default_sets()
     local fill_sets = get_default_sets("fill_sets", "global")
@@ -147,6 +163,7 @@ sets.global.new = function()
         item_sets = item_sets,
     }
 end
+
 sets.global.reset = function(set_tables)
     reset_to_default_sets(set_tables)
 end
@@ -164,9 +181,10 @@ sets.force.new = function(force_name)
             item_sets = get_default_sets("item_sets", "force"),
         },
     }
-    sets.set_force_metasets(obj)
+    sets.mt.set_force_metasets(obj)
     return obj
 end
+
 sets.force.reset = function(set_tables)
     reset_to_default_sets(set_tables)
 end
@@ -189,9 +207,10 @@ sets.player.new = function(player_index)
         groups = true,
         enabled = true,
     }
-    sets.set_player_metasets(obj)
+    sets.mt.set_player_metasets(obj)
     return obj
 end
+
 sets.player.reset = function(set_tables)
     reset_to_default_sets(set_tables)
 end
@@ -200,20 +219,22 @@ end
 --[[Metatable Information]]--
 -------------------------------------------------------------------------------
 sets.mt = {}
+
 sets.mt.forces = function (table_name)
     return {__index = global.sets[table_name]}
 end
+
 sets.mt.players = function (set, table_name)
     local force = set.force or "player"
     return {__index = global.forces[force].sets[table_name]}
 end
 
-sets.set_force_metasets = function(data)
+sets.mt.set_force_metasets = function(data)
     setmetatable(data.sets.fill_sets, sets.mt.forces("fill_sets"))
     setmetatable(data.sets.item_sets, sets.mt.forces("item_sets"))
 end
 
-sets.set_player_metasets = function(data)
+sets.mt.set_player_metasets = function(data)
     setmetatable(data.sets.fill_sets, sets.mt.players(data, "fill_sets"))
     setmetatable(data.sets.item_sets, sets.mt.players(data, "item_sets"))
 end

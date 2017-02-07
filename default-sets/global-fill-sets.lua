@@ -30,7 +30,7 @@ local sets = {
   -- ["boiler"]               = {group = "burners", slots = {{type="fuel", category="fuel-all", priority="max", limit=5}}},
   -- ["burner-inserter"]      = {group = "burners", slots = {{type="fuel", category="fuel-all", priority="max", limit=5}}},
   -- ["burner-mining-drill"]  = {group = "burners", slots = {{type="fuel", category="fuel-all", priority="max", limit=5}}},
-  ["stone-furnace"]        = {group = "furnaces-23", slots = {{type="fuel", category="fuel-all", priority="max", limit=5}}},
+  ["stone-furnace"]        = {group = "furnaces", slots = {{type="fuel", category="fuel-all", priority="max", limit=5}}},
   -- ["steel-furnace"]        = {group = "furnaces", slots = {{type="fuel", category="fuel-all", priority="max", limit=5}}},
   -- ["gun-turret"]           = {group = "turrets", slots = {{category = "bullet", priority = "qty", limit=10}}},
 }
