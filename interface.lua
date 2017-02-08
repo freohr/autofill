@@ -9,10 +9,10 @@ interface.console = require("stdlib/debug/console")
 function interface.print_global(name)
     if name and type(name) == "string" then
         --MOD.log(global[name], 2)
-        game.write_file(MOD.fullname.."/global.lua", serpent.block(global[name], {comment=false, sparse=true}))
+        game.write_file(MOD.fullname.."/global.lua", serpent.block(global[name], {comment=false, sparse=true, compact=true, name="global."..name, indent="    "}))
     else
         --MOD.log(global, 2)
-        game.write_file(MOD.fullname.."/global.lua", serpent.block(global, {comment=false, sparse=true}))
+        game.write_file(MOD.fullname.."/global.lua", serpent.block(global, {comment=false, sparse=true, compact=true, name="global", indent="    "}))
     end
 end
 
@@ -58,9 +58,16 @@ function interface.reset_mod()
     MOD.log(MOD.name .. " Reset Complete", 2)
 end
 
+function interface.reset_all_sets()
+    autofill.sets.verify.default_sets()
+    interface.reset_global_sets()
+    interface.reset_force_sets()
+    interface.reset_player_sets()
+end
+
 function interface.reset_global_sets()
-    --autofill.sets.reset_to_default_sets(global.sets)
-    global.sets = autofill.sets.reset_to_default_sets(global.sets)
+    --global.sets = autofill.sets.global.new()
+    autofill.sets.global.reset_sets()
 end
 
 function interface.reset_force(force)
@@ -72,6 +79,16 @@ function interface.reset_force(force)
     end
 end
 
+function interface.reset_force_sets(force)
+    if force then
+        autofill.sets.force.reset_sets(global.forces[force.name].sets)
+    else
+        for _, force_data in pairs(global.forces) do
+            autofill.sets.force.reset_sets(force_data.sets)
+        end
+    end
+end
+
 function interface.reset_player(player)
     if player then
         autofill.init_player(player.index, true)
@@ -80,10 +97,20 @@ function interface.reset_player(player)
     end
 end
 
-function interface.verify_saved_sets()
-    autofill.sets.verify_default_sets()
-    autofill.sets.update_and_verify_saved_sets(true)
-    game.write_file(MOD.fullname.."/global.lua", serpent.block(global, {comment=false, sparse=true}))
+function interface.reset_player_sets(player)
+    if player then
+        autofill.sets.player.reset_sets(global.players[player.index].sets)
+    else
+        for _, player_data in pairs(global.players) do
+            autofill.sets.player.reset_sets(player_data.sets)
+        end
+    end
+end
+
+function interface.update_and_verify_saved_sets(safe_merge)
+    autofill.sets.verify.default_sets()
+    autofill.sets.verify.update_and_verify_saved_sets(safe_merge)
+    game.write_file(MOD.fullname.."/global.lua", serpent.block(global, {comment=false, sparse=true, compact=true, name="global", indent="    "}))
 end
 
 -------------------------------------------------------------------------------

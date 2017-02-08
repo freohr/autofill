@@ -29,23 +29,5 @@ end
 --luacheck: globals autofill
 autofill = require("autofill")
 
--------------------------------------------------------------------------------
---[[INIT FUNCTIONS]]--
-local changes = require("changes")
-Event.register(Event.core_events.configuration_changed, changes.on_configuration_changed)
---Called ONCE, each time any mod (including base) is add/removed or version # changes.
---Called AFTER, on_init when installed into existing game.
-
-function MOD.on_init()
-    MOD.log("Init: Starting Install")
-    global = {}
-    global.config = table.deepcopy(MOD.config.control)
-    global._changes = changes.on_init(game.active_mods[MOD.name] or MOD.version)
-    autofill.init()
-    MOD.log("Installation Complete", 2)
-end
-Event.register(Event.core_events.init, MOD.on_init)
---Called ONCE, when mod is installed to a new or existing world. Does not get called on subsequent loads
-
 --Add the remote interface.
 remote.add_interface(MOD.interface, require("interface"))

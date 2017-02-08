@@ -9,25 +9,6 @@ local sets = {}
 --[[Local Functions]]--
 -------------------------------------------------------------------------------
 
-local function raw_merge(tblA, tblB, safe_merge)
-    if not tblB then
-        return tblA
-    end
-    if safe_merge then
-        for k, v in pairs(tblB) do
-            if not rawget(tblA, k) then
-                rawset(tblA, k, v)
-            end
-        end
-    else
-        for k, v in pairs(tblB) do
-            MOD.log(v)
-            rawset(tblA, k, v)
-        end
-    end
-    return tblA
-end
-
 local prequire = function(file)
     local ok, status = pcall(require, file)
     if not ok then return {} end
@@ -39,14 +20,10 @@ local get_default_sets = function(set_type, scope)
     return set
 end
 
--- local reset_to_default_sets = function(set_tables)
--- --local meta_fill_sets = getmetatable(set_tables.fill_sets)
--- --local meta_item_sets = getmetatable(set_tables.item_sets)
--- set_tables.fill_sets = setmetatable(get_default_sets("fill_sets", set_tables.type), getmetatable(set_tables.fill_sets))
--- set_tables.item_sets = setmetatable(get_default_sets("item_sets", set_tables.type), getmetatable(set_tables.item_sets))
--- --setmetatable(set_tables.fill_sets, meta_fill_sets)
--- --setmetatable(set_tables.item_sets, meta_item_sets)
--- end
+local reset_to_default_sets = function(set_tables)
+set_tables.fill_sets = setmetatable(get_default_sets("fill_sets", set_tables.type), getmetatable(set_tables.fill_sets))
+set_tables.item_sets = setmetatable(get_default_sets("item_sets", set_tables.type), getmetatable(set_tables.item_sets))
+end
 
 local _valid_items = function(_, k, cat, set_name)
     if game.item_prototypes[k] then
@@ -109,7 +86,12 @@ sets.get_item_sets_from_prototypes = function ()
     return item_sets
 end
 
-sets.verify_default_sets = function()
+-------------------------------------------------------------------------------
+--[[Verify]]--
+-------------------------------------------------------------------------------
+sets.verify = {}
+
+sets.verify.default_sets = function()
     MOD.log("Verifying all default fill_sets", 1)
     for name, set in pairs(sets.default_fill_sets) do
         sets.default_fill_sets[name] = table.filter(set, _valid_entities, name)
@@ -122,7 +104,7 @@ sets.verify_default_sets = function()
     end
 end
 
-sets.verify_saved_fill_sets = function(set, set_name)
+sets.verify.saved_fill_sets = function(set, set_name)
     for entity_name in pairs(set) do
         if not _valid_entities(nil, entity_name, set_name) then
             rawset(set, entity_name, nil)
@@ -130,7 +112,7 @@ sets.verify_saved_fill_sets = function(set, set_name)
     end
 end
 
-sets.verify_saved_item_sets = function(set, set_name)
+sets.verify.saved_item_sets = function(set, set_name)
     for category, items in pairs(set) do
         for item_name, _ in pairs(items) do
             if not _valid_items(nil, item_name, set_name) then
@@ -141,32 +123,12 @@ sets.verify_saved_item_sets = function(set, set_name)
 end
 
 --Automaticly runs in on_configuration_changed
-sets.update_and_verify_saved_sets = function (safe_merge)
-    safe_merge = false
+sets.verify.update_and_verify_saved_sets = function (safe_merge)
     MOD.log("Updating and Verifying all saved sets", 1)
     --Merge all then verify
-    --
-    -- raw_merge(global.sets.fill_sets, sets.default_fill_sets.global, safe_merge)
-    -- raw_merge(global.sets.item_sets, sets.default_item_sets.global, safe_merge)
-    -- if global.config.make_item_sets_from_prototypes then
-    --     raw_merge(global.sets.item_sets, sets.get_item_sets_from_prototypes(), true)
-    -- end
-    -- sets.verify_saved_fill_sets(global.sets.fill_sets, "global_fill_sets")
-    -- sets.verify_saved_item_sets(global.sets.item_sets, "global_item_sets")
-
-    for _, force in pairs(global.forces) do
-        raw_merge(force.sets.fill_sets, sets.default_fill_sets.force, safe_merge)
-        --raw_merge(force.sets.item_sets, sets.default_item_sets.force, safe_merge)
-        --sets.verify_saved_fill_sets(force.sets.fill_sets, "force_fill_sets")
-        --sets.verify_saved_item_sets(force.sets.item_sets, "force_item_sets")
-    end
-
-    -- for _, player in pairs(global.players) do
-    --     raw_merge(player.sets.fill_sets, sets.default_fill_sets.player, safe_merge)
-    --     raw_merge(player.sets.item_sets, sets.default_item_sets.player, safe_merge)
-    --     sets.verify_saved_fill_sets(player.sets.fill_sets, "player_fill_sets")
-    --     sets.verify_saved_item_sets(player.sets.item_sets, "player_item_sets")
-    -- end
+    sets.global.update(safe_merge)
+    sets.force.update(safe_merge)
+    sets.player.update(safe_merge)
 end
 
 -------------------------------------------------------------------------------
@@ -175,7 +137,7 @@ end
 sets.global = {}
 
 sets.global.new = function()
-    sets.verify_default_sets()
+    sets.verify.default_sets()
     local fill_sets = get_default_sets("fill_sets", "global")
     local item_sets = get_default_sets("item_sets", "global")
     if global.config.make_item_sets_from_prototypes then
@@ -187,6 +149,26 @@ sets.global.new = function()
         item_sets = item_sets,
     }
 end
+
+sets.global.update = function(safe_merge)
+    table.raw_merge(global.sets.fill_sets, table.deepcopy(sets.default_fill_sets.global), safe_merge)
+    table.raw_merge(global.sets.item_sets, table.deepcopy(sets.default_item_sets.global), safe_merge)
+    if global.config.make_item_sets_from_prototypes then
+        table.raw_merge(global.sets.item_sets, sets.get_item_sets_from_prototypes(), true)
+    end
+    sets.global.verify(global.sets)
+end
+
+sets.global.verify = function(data)
+    sets.verify.saved_fill_sets(data.fill_sets, "global_fill_sets")
+    sets.verify.saved_item_sets(data.item_sets, "global_item_sets")
+end
+
+sets.global.reset_sets = function()
+    global.sets.fill_sets = reset_to_default_sets("fill_sets", "global")
+    global.sets.item_sets = reset_to_default_sets("item_sets", "global")
+end
+
 
 -------------------------------------------------------------------------------
 --[[Force Sets]]--
@@ -203,6 +185,24 @@ sets.force.new = function(force_name)
     }
     sets.mt.set_force_metasets(obj)
     return obj
+end
+
+sets.force.update = function(safe_merge)
+    for _, force in pairs(global.forces) do
+        table.raw_merge(force.sets.fill_sets, table.deepcopy(sets.default_fill_sets.force), safe_merge)
+        table.raw_merge(force.sets.item_sets, table.deepcopy(sets.default_item_sets.force), safe_merge)
+        sets.force.verify(force)
+    end
+end
+
+sets.force.verify = function(data)
+    sets.verify.saved_fill_sets(data.fill_sets, "force_fill_sets")
+    sets.verify.saved_item_sets(data.item_sets, "force_item_sets")
+end
+
+sets.force.reset_sets = function(data)
+    data.fill_sets = reset_to_default_sets("fill_sets", "force")
+    data.item_sets = reset_to_default_sets("item_sets", "force")
 end
 
 -------------------------------------------------------------------------------
@@ -225,6 +225,27 @@ sets.player.new = function(player_index)
     }
     sets.mt.set_player_metasets(obj)
     return obj
+end
+
+sets.player.update = function(safe_merge)
+    for _, player in pairs(global.players) do
+        table.raw_merge(player.sets.fill_sets, table.deepcopy(sets.default_fill_sets.player), safe_merge)
+        table.raw_merge(player.sets.item_sets, table.deepcopy(sets.default_item_sets.player), safe_merge)
+        sets.player.verify(player.sets)
+    end
+end
+
+sets.player.verify = function(data)
+    sets.verify.saved_fill_sets(data.fill_sets, "player_fill_sets")
+    sets.verify.saved_item_sets(data.item_sets, "player_item_sets")
+end
+
+sets.player.update_force = function()
+end
+
+sets.player.reset_sets = function(data)
+    data.fill_sets = reset_to_default_sets("fill_sets", "player")
+    data.item_sets = reset_to_default_sets("item_sets", "player")
 end
 
 -------------------------------------------------------------------------------
