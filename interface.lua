@@ -5,14 +5,30 @@ local interface = {}
 
 interface.console = require("stdlib/debug/console")
 
---Dump the "global" to console and logfile
-function interface.print_global(name)
+--Dump the "global" to logfile
+function interface.log_save_global(name)
     if name and type(name) == "string" then
-        --MOD.log(global[name], 2)
         game.write_file(MOD.fullname.."/global.lua", serpent.block(global[name], {comment=false, sparse=true, compact=true, name="global."..name, indent="    "}))
     else
-        --MOD.log(global, 2)
         game.write_file(MOD.fullname.."/global.lua", serpent.block(global, {comment=false, sparse=true, compact=true, name="global", indent="    "}))
+    end
+end
+
+--Dump the MOD data to logfile
+function interface.log_MOD_global(name)
+    if name and type(name) == "string" then
+        game.write_file(MOD.fullname.."/MOD.lua", serpent.block(MOD[name], {comment=false, sparse=true, compact=true, name="global."..name, indent="    "}))
+    else
+        game.write_file(MOD.fullname.."/MOD.lua", serpent.block(MOD, {comment=false, sparse=true, compact=true, name="global", indent="    "}))
+    end
+end
+
+--Dump the MOD data to logfile
+function interface.log_default_sets(name)
+    if name and type(name) == "string" then
+        game.write_file(MOD.fullname.."/default_sets.lua", serpent.block(autofill.sets.default[name], {comment=false, sparse=true, compact=true, name="global."..name, indent="    "}))
+    else
+        game.write_file(MOD.fullname.."/default_sets.lua", serpent.block(autofill.sets.default, {comment=false, sparse=true, compact=true, name="global", indent="    "}))
     end
 end
 
@@ -53,93 +69,15 @@ end
 -------------------------------------------------------------------------------
 --[[Reset functions]]
 --Complete reset of the mod. Wipes everything.
-function interface.reset_mod()
-    MOD.on_init()
+interface.reset_mod = function()
+    autofill.on_init()
     MOD.log(MOD.name .. " Reset Complete", 2)
-end
-
-function interface.reset_all_sets()
-    autofill.sets.verify.default_sets()
-    interface.reset_global_sets()
-    interface.reset_force_sets()
-    interface.reset_player_sets()
-end
-
-function interface.reset_global_sets()
-    --global.sets = autofill.sets.global.new()
-    autofill.sets.global.reset_sets()
-end
-
-function interface.reset_force(force)
-    if force then
-        if type(force) == "table" then force = force.name end
-        autofill.init_force(force, true)
-    else
-        autofill.init_force(nil, true)
-    end
-end
-
-function interface.reset_force_sets(force)
-    if force then
-        autofill.sets.force.reset_sets(global.forces[force.name].sets)
-    else
-        for _, force_data in pairs(global.forces) do
-            autofill.sets.force.reset_sets(force_data.sets)
-        end
-    end
-end
-
-function interface.reset_player(player)
-    if player then
-        autofill.init_player(player.index, true)
-    else
-        autofill.init_player(nil, true)
-    end
-end
-
-function interface.reset_player_sets(player)
-    if player then
-        autofill.sets.player.reset_sets(global.players[player.index].sets)
-    else
-        for _, player_data in pairs(global.players) do
-            autofill.sets.player.reset_sets(player_data.sets)
-        end
-    end
-end
-
-function interface.update_and_verify_saved_sets(safe_merge)
-    autofill.sets.verify.default_sets()
-    autofill.sets.verify.update_and_verify_saved_sets(safe_merge)
-    game.write_file(MOD.fullname.."/global.lua", serpent.block(global, {comment=false, sparse=true, compact=true, name="global", indent="    "}))
 end
 
 -------------------------------------------------------------------------------
 --[[Toggle functions]]
-
-function interface.toggle_or_set_global_enabled(enabled)
-    if enabled ~= nil then
-        global.enabled = enabled
-        return enabled
-    else
-        global.enabled = not global.enabled
-        return global.enabled
-    end
-end
-
-function interface.toggle_or_set_player_enabled(player, enabled)
-    --player = Game.get_valid_player(player)
-    if player and player.valid then
-        if global.players[player.index] then
-            if enabled ~= nil then
-                global.players[player.index].enabled = enabled
-                return enabled
-            else
-                global.players[player.index].enabled = not global.players[player.index].enabled
-                return global.players[player.index].enabled
-            end
-        end
-    end
-end
+interface.toggle_or_set_global_enabled = autofill.globals.toggle_paused
+interface.toggle_or_set_player_enabled = autofill.players.toggle_paused
 
 -------------------------------------------------------------------------------
 --[[Insert functions]]
@@ -158,9 +96,11 @@ local function register_cm_interface(disable)
     --Register with creative-mode for easy testing
     if remote.interfaces["creative-mode"] and remote.interfaces["creative-mode"]["register_remote_function_to_modding_ui"] then
         MOD.log("Registering with Creative Mode")
-        remote.call("creative-mode", "register_remote_function_to_modding_ui", MOD.interface, "print_global")
+        remote.call("creative-mode", "register_remote_function_to_modding_ui", MOD.interface, "log_save_global")
+        remote.call("creative-mode", "register_remote_function_to_modding_ui", MOD.interface, "log_MOD_global")
+        remote.call("creative-mode", "register_remote_function_to_modding_ui", MOD.interface, "log_default_sets")
         remote.call("creative-mode", "register_remote_function_to_modding_ui", MOD.interface, "reset_mod")
-        remote.call("creative-mode", "register_remote_function_to_modding_ui", MOD.interface, "verify_saved_sets")
+        --remote.call("creative-mode", "register_remote_function_to_modding_ui", MOD.interface, "verify_saved_sets")
         remote.call("creative-mode", "register_remote_function_to_modding_ui", MOD.interface, "console")
         if disable then interface.creative_mode_register = nil end
     end

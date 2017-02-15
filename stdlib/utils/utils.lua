@@ -198,7 +198,7 @@ end
 --Additional Table Helpers
 
 function table.raw_merge(tblA, tblB, safe_merge)
-    --safe_merge, only merge tblB[k] does not already exsist in tblA
+    --safe_merge, only merge tblB[k] if it does not already exsist in tblA
     if safe_merge then
         for k, v in pairs(tblB) do
             if not rawget(tblA, k) then

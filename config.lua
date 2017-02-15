@@ -6,6 +6,7 @@ AF = {
 
 AF.control = {
     loglevel = 2, --Default: 0, Minimum level to show log messages, 0=off, 1=logfile, 2=logfile and print
+    make_default_sets_from_files = true,
     make_item_sets_from_prototypes = true, --Default: true, Dynamically create global item_sets based on item categories
     sync_with_cheat_mode = false,
 }
