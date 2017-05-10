@@ -209,7 +209,7 @@ loader = {
       end
 
       for name, item in pairs(game.item_prototypes) do
-        if item.fuel_value > 0 then
+        if item.fuel_value > 0 and item.fuel_category == "chemical" then
           if all then
             all[#all + 1] = name
           end

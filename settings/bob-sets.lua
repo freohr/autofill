@@ -24,7 +24,7 @@ return {
 
   -- boblogistics
   ["long-handed-burner-inserter"] = {group="burners", limits={1}, "fuels-high"},  --possibly not needed with next bob/log update
-  ["bob-diesel-locomotive-2"]        = locomotiveFillSet,
-  ["bob-diesel-locomotive-3"]        = locomotiveFillSet,
-  ["bob-armoured-diesel-locomotive"] = locomotiveFillSet
+  ["bob-locomotive-2"]        = locomotiveFillSet,
+  ["bob-locomotive-3"]        = locomotiveFillSet,
+  ["bob-armoured-locomotive"] = locomotiveFillSet
 }

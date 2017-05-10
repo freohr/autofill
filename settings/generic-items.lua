@@ -34,6 +34,7 @@ local tbl = {
 	flamer = {
 		"acid-thrower-ammo", --Additional Turret
 		"flame-thrower-ammo-compressed", --Ammo Box
+		"flamejet-ammo", --AAI
 	},
 }
 

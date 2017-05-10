@@ -3,11 +3,11 @@
 --
 
 return {
-  ["ammo-bullets"] = {"piercing-rounds-magazine", "firearm-magazine"},
+  ["ammo-bullets"] = {"uranium-rounds-magazine", "piercing-rounds-magazine", "firearm-magazine"},
   ["ammo-rockets"] = {"rocket", "explosive-rocket"},
-  ["ammo-shells"] = {"explosive-cannon-shell", "cannon-shell"},
+  ["ammo-shells"] = {"explosive-uranium-cannon-shell", "uranium-cannon-shell", "explosive-cannon-shell", "cannon-shell",},
   ["ammo-shotgun"]	= {"shotgun-shell", "piercing-shotgun-shell"},
-  ["ammo-flamethrower"] = {"flame-thrower-ammo"},
+  ["ammo-flamethrower"] = {"flamethrower-ammo"},
   ["fuels-all"] = {}, -- fuel tables not filled here because lack of "game" in this scope.
   ["fuels-high"] = {}
 }
