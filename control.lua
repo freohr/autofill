@@ -22,6 +22,8 @@ loader.addSets "settings/5dim-sets"
 loader.extendItemArray "settings/at-items" -- Advanced Tanks and Tankwerkz Mod
 loader.addItemArray "settings/at-newitems"
 loader.addSets "settings/at-sets"
+loader.extendItemArray "settings/anonymods-items" -- AnonyMods Ammo
+loader.addSets "settings/anonymods-sets" -- Anonymods Items
 
 --flying text colors
 local RED = {r = 0.9}
