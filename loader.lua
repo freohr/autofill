@@ -215,7 +215,7 @@ loader = {
           if all then
             all[#all + 1] = name
           end
-          if item.fuel_value >= MINfuel_value then
+          if item.fuel_value >= MINfuel_value or name == "omnite" then
             if high then
               high[#high + 1] = name
             end
